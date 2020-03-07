@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+  user-ms:
+    container_name: user-ms
+    environment:
+      - DB_URL=mongodb://root:password@mongo_db:27017/users_db?authSource=admin
+      - PORT=3001
+      - SECRET=SUPERSECRETKEYBLABLABLA
+    build:
+      context: ./user-ms
+      dockerfile: DockerFile
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - user-service:/app
+    networks:
+      - app-network
+    depends_on: 
+      - mongo_db
+      - api_gateway
+
+  room-ms:
+    container_name: room-ms
+    environment:
+      - DB_URL=mongodb://root:password@mongo_db:27017/rooms_db?authSource=admin
+      - PORT=3002
+      - SECRET=SUPERSECRETKEYBLABLABLA
+    build:
+      context: ./room-ms
+      dockerfile: DockerFile
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - room-service:/app
+    networks:
+      - app-network
+    depends_on: 
+      - mongo_db
+      - api_gateway
+      - rabbitmq
+
+  api_gateway:
+    container_name: api_gateway
+    build:
+      context: ./api-gateway
+      dockerfile: DockerFile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+  mongo_db:
+    image: mongo:4.1.8-xenial
+    container_name: mongo_db
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:     
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3.6.0-management
+    labels:
+      - "app=rabbitmq"
+    environment:
+    - HOSTNAME=rabbitmq
+    - RABBITMQ_NODENAME=rabbitmq
+    - RABBITMQ_DEFAULT_USER=user
+    - RABBITMQ_DEFAULT_PASS=password
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+  user-service:
+  room-service:
