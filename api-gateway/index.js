@@ -1,12 +1,8 @@
 const express = require('express')
 const httpProxy = require('express-http-proxy')
+const services = require('./services');
 const app = express()
 
-const user_ms = 'http://user-ms:3001';
-const room_ms = 'http://room-ms:3002';
-
-const userServiceProxy = httpProxy(user_ms);
-const roomServiceProxy = httpProxy(room_ms);
 // Authentication
 app.use((req, res, next) => {
   // TODO: my authentication logic
@@ -15,17 +11,18 @@ app.use((req, res, next) => {
   next()
 })
 
-// Proxy requests
-app.all(/^\/api\/users/, (req, res, next) => {
-  console.log('User Request', user_ms);
-  userServiceProxy(req, res, next);
+
+//create proxy request for each MicroService.
+//TODO Get these services from DB & create register service endpoint & health-check endpoint.
+services.forEach(service=>{
+  const serviceProxy=httpProxy(service.service_domain);
+  app.all(service.service_endpoint, (req, res, next) => {
+    console.log(service.service_name);
+    serviceProxy(req, res, next);
+  });
 });
 
-app.all(/^\/api\/rooms/, (req, res, next) => {
-  console.log('Room Request');
-  roomServiceProxy(req, res, next);
-});
-
-app.listen(3000, () => {
+const port=process.env.PORT || 3000;
+app.listen(port , () => {
   console.log("API Gateway Started")
 })
