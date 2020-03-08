@@ -5,6 +5,7 @@ Trivago Task.
 ## Requirements
 - npm
 - node > 10
+- mongodb > 4
 ## Installation
 
 
@@ -20,7 +21,7 @@ docker-compose up --build
 
 * **URL**
 
-  /api/users
+  `/api/users`
 
 * **Method:**
 
@@ -44,7 +45,7 @@ docker-compose up --build
 
 * **URL**
 
-  /api/rooms
+  `/api/rooms`
 
 * **Method:**
 
@@ -67,12 +68,20 @@ docker-compose up --build
 
 * **URL**
 
-  /api/rooms/reserve
+  `/api/rooms/reserve`
 
 * **Method:**
 
   `POST`
 
+* **BODY:**
+
+```js
+{
+    user_id:"",
+    room_id:""
+}
+```
 
 * **Success Response:**
 
@@ -87,7 +96,8 @@ docker-compose up --build
 
 ## Notes
 - API Gateway adds an authorization header with a secret key for each request and I am checking on this header in each microservice.
-- You can't access any microservice directly it will return 401, the request should be made through the API Gateway
+- You can't access any microservice directly it will return 401, the request should be made through the API Gateway.
+- in each microservice there is a seeder folder I am using these just to load the data in the DB to be able to test.
 
 ## assumption
 Based on my understanding from the requirements:
