@@ -1,7 +1,5 @@
 # Simple Reservation System
 
-Trivago Task.
-
 ## Requirements
 - npm
 - node > 10
